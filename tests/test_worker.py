@@ -32,7 +32,7 @@ from rq.compat import as_text, PY2
 from rq.job import Job, JobStatus
 from rq.registry import StartedJobRegistry, FailedJobRegistry, FinishedJobRegistry
 from rq.suspension import resume, suspend
-from rq.utils import utcnow
+from rq.utils import utcnow, utcformat
 from rq.version import VERSION
 from rq.worker import HerokuWorker, WorkerStatus
 
@@ -635,6 +635,10 @@ class TestWorker(RQTestCase):
         # Updates worker statuses
         self.assertEqual(worker.get_state(), 'busy')
         self.assertEqual(worker.get_current_job_id(), job.id)
+
+        # Updates job started_at
+        self.assertIsNotNone(job.started_at)
+        self.assertEqual(self.testconn.hget(job.key, "started_at"), utcformat(job.started_at).encode())
 
     def test_prepare_job_execution_inf_timeout(self):
         """Prepare job execution handles infinite job timeout"""

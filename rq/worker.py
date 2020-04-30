@@ -789,7 +789,8 @@ class Worker(object):
                                           job_class=self.job_class)
             registry.add(job, timeout, pipeline=pipeline)
             job.set_status(JobStatus.STARTED, pipeline=pipeline)
-            pipeline.hset(job.key, 'started_at', utcformat(utcnow()))
+            job.started_at = utcnow()
+            pipeline.hset(job.key, 'started_at', utcformat(job.started_at))
             pipeline.execute()
 
         msg = 'Processing {0} from {1} since {2}'
